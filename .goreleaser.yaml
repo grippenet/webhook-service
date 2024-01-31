@@ -7,10 +7,14 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-  - env:
+  - main: ./cmd/webhook-service
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
+    ldflags:
+      - "-s -w -X  pkg.version.Version={{.Version}} -X pkg.version.Revision={{.Commit}}"
+      
 archives:
   - replacements:
       darwin: Darwin
