@@ -11,14 +11,15 @@ import (
 )
 
 type HttpServer struct {
-	app      *fiber.App
-	config   *types.HttpServerConfig
-	instance string
-	start    time.Time
+	app         *fiber.App
+	config      *types.HttpServerConfig
+	instance    string
+	start       time.Time
+	hookChannel chan<- types.WebHookInput
 }
 
-func NewHttpServer(config *types.HttpServerConfig) *HttpServer {
-	return &HttpServer{config: config}
+func NewHttpServer(config *types.HttpServerConfig, hookChannel chan<- types.WebHookInput) *HttpServer {
+	return &HttpServer{config: config, hookChannel: hookChannel}
 }
 
 func (server *HttpServer) WebhookHandler(c *fiber.Ctx) error {
@@ -28,7 +29,7 @@ func (server *HttpServer) WebhookHandler(c *fiber.Ctx) error {
 	}
 	hookName := c.Params("name")
 	found := false
-	if len(hookName) > 0 && len(hookName) <= 128 {
+	if len(hookName) > 0 && len(hookName) <= types.WebHookTokenMaxSize {
 		_, ok := server.config.Hooks[hookName]
 		if ok {
 			found = true
@@ -38,8 +39,11 @@ func (server *HttpServer) WebhookHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, "Bad hook")
 	}
 	log.Println("Hook received")
-
-	log.Println(string(c.Body()))
+	w := &WebHookData{
+		time: time.Now(),
+		body: c.Body(),
+	}
+	server.hookChannel <- w
 	return nil
 }
 

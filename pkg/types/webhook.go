@@ -2,6 +2,8 @@ package types
 
 import "time"
 
+const WebHookTokenMaxSize = 128
+
 type WebHookEventType uint8
 
 const (
@@ -20,3 +22,8 @@ type WebHookType string
 const (
 	WebHookTypeSarbacane WebHookType = "sarbacane"
 )
+
+type WebHookInput interface {
+	Body() []byte
+	Time() time.Time
+}

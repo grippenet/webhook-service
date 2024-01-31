@@ -26,6 +26,8 @@ package sarbacane
 // webmail Webmail type "webmail": "Unknown"
 
 type SarbacaneWebHook struct {
-	email      string `json:"email"`
-	campaignId string `json:"email",omitempty`
+	Email      string `json:"email"`
+	CampaignId string `json:"campaignId"`
+	Date       string `json:"date"`
+	From       string `json:"from"`
 }
